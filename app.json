@@ -24,8 +24,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon-foreground.png",
-        "backgroundImage": "./assets/icon-background.png",
-        "monochromeImage": "./assets/icon-monochrome.png"
+        "backgroundColor": "#FFF1E0"
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.sohaib1122.opmseller"

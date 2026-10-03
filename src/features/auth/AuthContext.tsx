@@ -25,9 +25,13 @@ const sessionStorage = {
 type AuthContextValue = {
   initializing: boolean;
   isAuthenticated: boolean;
+  /** False until the seller has confirmed the email on the account. */
+  isEmailVerified: boolean;
   session: SellerSession | null;
   signIn: (credentials: Credentials) => Promise<void>;
   register: (details: SellerRegistration) => Promise<void>;
+  sendVerificationCode: () => Promise<void>;
+  verifyEmail: (code: string) => Promise<void>;
   submitBusinessVerification: (details: BusinessVerification) => Promise<void>;
   refreshProfile: () => Promise<SellerUser | null>;
   signOut: () => Promise<void>;
@@ -69,9 +73,19 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const value = useMemo<AuthContextValue>(() => ({
     initializing,
     isAuthenticated: Boolean(session),
+    // A restored session predating verification still has to clear the code step.
+    isEmailVerified: Boolean(session?.user.email_verified_at),
     session,
     signIn: async (credentials) => { await saveSession(await authService.signIn(credentials)); },
     register: async (details) => { await saveSession(await authService.register(details)); },
+    sendVerificationCode: async () => { await authService.sendEmailVerification(); },
+    verifyEmail: async (code) => {
+      const { user } = await authService.verifyEmail(code);
+      // Re-read through getProfile so the cached session matches the server,
+      // rather than trusting the verification response alone.
+      const refreshed = await authService.getProfile().then((payload) => payload.user).catch(() => user);
+      if (session) await saveSession({ ...session, user: refreshed });
+    },
     submitBusinessVerification: async (details) => { await authService.submitBusinessVerification(details); },
     refreshProfile: async () => {
       if (!session) return null;

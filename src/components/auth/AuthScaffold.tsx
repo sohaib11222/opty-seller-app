@@ -14,10 +14,12 @@ type AuthScaffoldProps = PropsWithChildren<{
   artEyebrow: string;
   back?: boolean;
   onBack?: () => void;
+  /** Optional control on the brand artwork, such as the global language toggle. */
+  topAction?: ReactNode;
   footer?: ReactNode;
 }>;
 
-export function AuthScaffold({ eyebrow, title, description, artTitle, artEyebrow, back, onBack, children, footer }: AuthScaffoldProps) {
+export function AuthScaffold({ eyebrow, title, description, artTitle, artEyebrow, back, onBack, topAction, children, footer }: AuthScaffoldProps) {
   const { t } = useLanguage();
   return (
     <Screen contentStyle={styles.content} statusBarStyle="light" transparentStatusBar>
@@ -28,6 +30,7 @@ export function AuthScaffold({ eyebrow, title, description, artTitle, artEyebrow
             <MaterialCommunityIcons name="arrow-left" size={22} color="#FFFFFF" />
           </Pressable>
         ) : null}
+        {topAction ? <View style={styles.topAction}>{topAction}</View> : null}
       </View>
       <View style={styles.body}>
         <Text style={styles.eyebrow}>{eyebrow}</Text>
@@ -44,6 +47,7 @@ const styles = StyleSheet.create({
   content: { paddingBottom: 32 },
   artWrap: { position: 'relative' },
   backButton: { position: 'absolute', left: 16, top: 50, width: 40, height: 40, borderRadius: 14, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.18)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.35)' },
+  topAction: { position: 'absolute', top: 50, right: 16 },
   body: { paddingHorizontal: 22, paddingTop: 23 },
   eyebrow: { color: colors.blue, fontSize: 11, fontWeight: '800', letterSpacing: 1.1, textTransform: 'uppercase' },
   title: { color: colors.ink, fontSize: 29, lineHeight: 34, letterSpacing: -1.15, fontWeight: '800', marginTop: 7 },

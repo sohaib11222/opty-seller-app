@@ -27,9 +27,18 @@ async function upload(path: string, asset: { uri: string; name?: string | null; 
 
 const withAssetUrls = (store: SellerStore): SellerStore => ({ ...store, profile_image_url: apiAssetUrl(store.profile_image_url), banner_image_url: apiAssetUrl(store.banner_image_url) });
 
-export type SellerGate = '/verification' | '/pending-review' | '/(tabs)';
+export type SellerGate = '/verify-email' | '/verification' | '/pending-review' | '/(tabs)';
 
-export function getSellerDestination(store: SellerStore): SellerGate {
+/**
+ * Resolves where an authenticated seller should land.
+ *
+ * Email confirmation comes first so the business details go to an address the
+ * seller actually controls; only then can onboarding advance.
+ */
+export function getSellerDestination(store: SellerStore, user?: { email_verified_at?: string | null } | null): SellerGate {
+  if (user && !user.email_verified_at) {
+    return '/verify-email';
+  }
   if (!store.verification_submitted_at && ['pending', 'in_progress', 'rejected'].includes(store.onboarding_status)) {
     return '/verification';
   }

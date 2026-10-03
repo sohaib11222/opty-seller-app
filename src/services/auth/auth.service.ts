@@ -28,7 +28,7 @@ export type BusinessVerification = {
   idDocumentUrl?: string;
 };
 
-type AuthResponse = { user: SellerUser; token: string };
+type AuthResponse = { user: SellerUser; token: string; email_verification_required?: boolean; verification_dispatched?: boolean };
 
 export const authService = {
   signIn: (credentials: Credentials) => request<AuthResponse>('/seller/auth/login', { method: 'POST', auth: false, body: credentials }),
@@ -56,6 +56,8 @@ export const authService = {
     body: { email, reset_token: resetToken, password, password_confirmation: passwordConfirmation },
   }),
   getProfile: () => request<{ user: SellerUser }>('/seller/profile'),
+  sendEmailVerification: () => request('/seller/profile/verify-email/send', { method: 'POST' }),
+  verifyEmail: (code: string) => request<{ user: SellerUser }>('/seller/profile/verify-email', { method: 'POST', body: { code } }),
   submitBusinessVerification: (details: BusinessVerification) => request('/seller/verification/submit', {
     method: 'POST',
     body: {
